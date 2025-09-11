@@ -1,10 +1,81 @@
+from datetime import datetime, timedelta
+from django.utils import timezone
 from rest_framework import serializers
-from .models import GuardiaModel,AutorizacionVisita, RegistroVisitaModel, PersonaModel, GuardiaModel, Usuario, Comunicado
+from .models import AutorizacionVisita, RegistroVisitaModel, AreaComun, Reserva
+from users.models import GuardiaModel, PersonaModel
+from django.db.models import Q
 
-class GuardiaSerializer(serializers.ModelSerializer):
+
+# CALNEDARIO AREA COMUNES
+class AreaComunSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GuardiaModel
-        fields = '__all__'
+        model = AreaComun
+        fields = '_all_'
+        
+class ReservaSerializer(serializers.ModelSerializer):
+    # usuario = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())  # para asignar usuario al crear
+    area_comun = serializers.PrimaryKeyRelatedField(queryset=AreaComun.objects.all()) # para asignar area al crear
+
+    class Meta:
+        model = Reserva
+        fields = '_all_'
+        read_only_fields = ['usuario']
+
+    def validate(self, data):
+        fecha = data['fecha']
+        hora_inicio = data['hora_inicio']
+        hora_fin = data['hora_fin']
+        area = data['area_comun']
+
+        # Combina fecha y hora
+        inicio_datetime = datetime.combine(fecha, hora_inicio)
+        fin_datetime = datetime.combine(fecha, hora_fin)
+
+        # Convierte a datetime con zona horaria local
+        inicio_datetime = timezone.make_aware(inicio_datetime, timezone.get_current_timezone())
+        fin_datetime = timezone.make_aware(fin_datetime, timezone.get_current_timezone())
+
+        ahora_local = timezone.localtime()  # Hora local del servidor
+        # print("fecha:", ahora_local.date())
+        # print("hora:", ahora_local.time())
+
+        # Validación 24 horas antes
+        if inicio_datetime < ahora_local + timedelta(hours=24):
+            raise serializers.ValidationError({
+                "Status": 0,
+                "Error": 1,
+                "message": "Las reservas deben realizarse al menos 24 horas antes.",
+                "data": None
+            })
+
+        # Validar que fin > inicio
+        if fin_datetime <= inicio_datetime:
+            raise serializers.ValidationError({
+                "Status": 0,
+                "Error": 1,
+                "message": "La hora de fin debe ser posterior a la hora de inicio.",
+                "data": None
+            })
+
+        # Validar solapamiento con otras reservas
+        solapadas = Reserva.objects.filter(
+            area_comun=area,
+            fecha=fecha
+        ).filter(
+            Q(hora_inicio_lt=hora_fin) & Q(hora_fin_gt=hora_inicio)
+        )
+
+        if solapadas.exists():
+            raise serializers.ValidationError({
+                "Status": 0,
+                "Error": 1,
+                "message": "Ya existe una reserva en ese horario para esta área.",
+                "data": None
+            })
+
+        return data
+    
+# REGISTRO DE VISITAS
 
 class ListaVisitantesSerializer(serializers.Serializer):
     nombre = serializers.CharField(max_length=100)
@@ -15,41 +86,6 @@ class ListaVisitantesSerializer(serializers.Serializer):
 
     class Meta:
         fields = ['nombre', 'apellido', 'fecha_visita', 'hora_entrada', 'hora_salida']
-
-class ComunicadoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comunicado
-        fields = ['titulo', 'descripcion', 'fecha_vencimiento', 'tipo', 'administrador', 'activo']
-        read_only_fields = ['activo']  # si quieres que siempre se cree activo por default
-
-    # Validación personalizada del administrador
-    # def validate(self, data):
-    #     from .models import Usuario
-    #     try:
-    #         admin = Usuario.objects.get(id=data['administrador_id'])
-    #         if not admin.es_admin():
-    #             raise serializers.ValidationError("El usuario no es un administrador válido.")
-    #     except Usuario.DoesNotExist:
-    #         raise serializers.ValidationError("Administrador no encontrado.")
-    #     return data
-      
-
-    # def create(self, validated_data):
-    #     from .models import Comunicado, Usuario
-    #     print("claidate data")
-    #     print(validated_data)
-    #     admin = Usuario.objects.get(id=validated_data['administrador'])
-    #     #print("HOLA ESTE EL AEL ADMIN ID"+admin.id)
-    #     print("validate data: ")
-    #     print(validated_data)
-    #     comunicado = Comunicado.objects.create(
-    #         titulo=validated_data['titulo'],
-    #         descripcion=validated_data['descripcion'],
-    #         fecha_vencimiento=validated_data.get('fecha_vencimiento'),
-    #         tipo=validated_data['tipo'],
-    #         administrador_id=validated_data['administrador'],
-    #     )
-    #     return comunicado
 
 class MarcarEntradaSerializer(serializers.Serializer):
     guardia_id = serializers.IntegerField()
