@@ -11,16 +11,18 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os 
+from pathlib import Path
+from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 AUTH_USER_MODEL = 'guardia.Usuario'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-46ajf9l6ur#)swl-uiza+#8pgsqs&b!%)_1+#c*h*#tz_dv+u%'
+SECRET_KEY = os.getenv('SECRET_KEY',"fallback-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'guardia'
+    'guardia',
+    'unidad'
 ]
 
 MIDDLEWARE = [
@@ -77,11 +80,11 @@ WSGI_APPLICATION = 'condominio.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'condominio',
-        'USER': 'postgres',
-        'PASSWORD': 'CObuchan8',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DATABASE_NAME') ,
+        'USER': os.getenv('DATABASE_USER') ,
+        'PASSWORD': os.getenv('DATABASE_PASSWORD') ,
+        'HOST':  os.getenv("DATABASE_HOST", "localhost"),
+        'PORT':  os.getenv("DATABASE_PORT", "5432"),
 
     }
 }
