@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'condominio.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'condominio',
+        'NAME': 'condominio_v3',
         'USER': 'postgres',
-        'PASSWORD': 'CObuchan8',
+        'PASSWORD': 'h0l4c0m03st4s',
         'HOST': 'localhost',
         'PORT': '5432',
 
