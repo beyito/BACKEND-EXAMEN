@@ -6,9 +6,10 @@ from users.models import Usuario
 class Comunicado(models.Model):
     titulo = models.CharField(max_length=255)
     descripcion = models.TextField()
+    url_imagen = models.URLField(null=True, blank=True)
     fecha_publicacion = models.DateTimeField(auto_now_add=True)
     fecha_vencimiento = models.DateTimeField(null=True, blank=True)
-    tipo = models.CharField(max_length=50)  # sin choices
+    tipo = models.CharField(max_length=50)  # ANUNCIO,COMUNICADO,ADVERTENCIA,ETC
     administrador =  models.ForeignKey(
     Usuario, 
     on_delete=models.CASCADE, 
@@ -21,4 +22,3 @@ class Comunicado(models.Model):
 
     class Meta:
         db_table = 'comunicado'
-

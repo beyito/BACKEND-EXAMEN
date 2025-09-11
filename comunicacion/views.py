@@ -10,6 +10,7 @@ from users.models import Usuario
 def crearComunicado(request, administrador_id):
     try:
         admin = Usuario.objects.get(id=administrador_id)
+        print("Supuesto Admin",admin)
     except Usuario.DoesNotExist:
         return Response({"status": 2, "error": 1, "message": "Usuario no encontrado"})
     
@@ -18,6 +19,7 @@ def crearComunicado(request, administrador_id):
     data = request.data.copy()
     # Pasa el ID, no el objeto
     data['administrador'] = admin.id
+    print(data)
 
     serializer = ComunicadoSerializer(data=data)
     if serializer.is_valid():
@@ -35,3 +37,19 @@ def crearComunicado(request, administrador_id):
         "message": "Error al crear el comunicado",
         "data": serializer.errors
     })
+
+@api_view(['GET'])
+def ListarComunicado(request):
+    objetos = Comunicado.objects.filter(activo = False)
+    serializer = ComunicadoSerializer(objetos, many=True)
+    return Response ({
+        "status": 1,
+        "errorr": 0,
+        "message": "Se crea la lista de comunicados correctamente",
+        "value": serializer.data
+
+    })
+    
+        
+        
+    
