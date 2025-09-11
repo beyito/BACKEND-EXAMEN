@@ -21,4 +21,6 @@ from rest_framework import routers
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('guardia/', include('guardia.urls')),
+    path('users/', include('users.urls')),
+    path('area_comun/', include('area_comun.urls')),
 ]

@@ -1,36 +1,37 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from users.models import Usuario
 
-class Rol(models.Model):
-    idRol = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=50, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    class Meta:
-        db_table = "rol" 
+# class Rol(models.Model):
+#     idRol = models.AutoField(primary_key=True)
+#     nombre = models.CharField(max_length=50, unique=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+#     class Meta:
+#         db_table = "rol" 
 
-    def __str__(self):
-        return self.nombre
+#     def __str__(self):
+#         return self.nombre
 
-class Usuario(AbstractUser):
-    nombre = models.CharField(max_length=100)
-    correo = models.EmailField(unique=True, null=True, blank=True)
-    telefono = models.CharField(max_length=20, null=True, blank=True)
-    idRol = models.ForeignKey(Rol, on_delete=models.RESTRICT, db_column="idrol")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+# class Usuario(AbstractUser):
+#     nombre = models.CharField(max_length=100)
+#     correo = models.EmailField(unique=True, null=True, blank=True)
+#     telefono = models.CharField(max_length=20, null=True, blank=True)
+#     idRol = models.ForeignKey(Rol, on_delete=models.RESTRICT, db_column="idrol")
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
 
-    def es_copropietario(self):
-         return self.idRol.nombre == "Copropietario"
+#     def es_copropietario(self):
+#          return self.idRol.nombre == "Copropietario"
     
-    def es_empleado(self):
-         return self.idRol.nombre == "Empleado"
+#     def es_empleado(self):
+#          return self.idRol.nombre == "Empleado"
     
-    def es_admin(self):
-         return self.idRol.nombre == "Administrador"
+#     def es_admin(self):
+#          return self.idRol.nombre == "Administrador"
     
-    class Meta:
-        db_table = "usuario"
+#     class Meta:
+#         db_table = "usuario"
     
 
 
