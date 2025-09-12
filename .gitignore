@@ -65,8 +65,13 @@ htmlcov/
 *.env
 .env
 
-# --------------------------
-# Django migrations (opcional)
-# --------------------------
-*/migrations/
-!*/migrations/__init__.py
+
+# Dentro de cualquier carpeta "migrations":
+# 1) Ignora la carpeta __pycache__
+**/migrations/__pycache__/
+
+# 2) Ignora TODO lo demás en migrations...
+**/migrations/*
+
+# 3) ...pero conserva el __init__.py
+!**/migrations/__init__.py
