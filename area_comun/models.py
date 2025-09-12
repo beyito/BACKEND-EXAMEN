@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from users.models import CopropietarioModel, PersonaModel, GuardiaModel
-
+from users.models import Usuario as User
 
 
 
@@ -27,8 +27,7 @@ class AreaComun(models.Model):
 
     class Meta:
         db_table = 'area_comun'
-
-    def __str__(self):
+    def _str_(self):
         return self.nombre_area
 
 
