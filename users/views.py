@@ -53,23 +53,14 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-        except Exception:
-            return Response({
-                "Status": 2,
-                "Error": 1,
-                "message": "Error al iniciar sesión",
-                "data": {}
-            }, status=400)
-        
+        serializer.is_valid(raise_exception=True)  # si falla, DRF devuelve 401 automáticamente
+
         return Response({
             "Status": 1,
             "Error": 0,
             "message": "Se inició sesión correctamente",
             "data": serializer.validated_data
         })
-
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]

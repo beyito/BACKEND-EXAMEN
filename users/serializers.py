@@ -26,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'ci',
-            'phone_number',
+            'telefono',
             'email',
             'password',   
         ]
@@ -37,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
             ci=validated_data.get('ci', ''),
-            phone_number=validated_data.get('phone_number', ''),
+            telefono=validated_data.get('telefono', ''),
             email=validated_data.get('email', '')
         )
         user.set_password(validated_data['password'])  # 🔑 contraseña encriptada
@@ -52,7 +52,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['first_name'] = self.user.first_name
         data['last_name'] = self.user.last_name
         data['email'] = self.user.email
-        data['rol'] = self.user.rol.name
+        data['rol'] = self.user.idRol.name
         data['is_staff'] = self.user.is_staff
         return data
     
