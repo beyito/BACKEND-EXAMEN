@@ -5,7 +5,7 @@ venv/
 myenv/
 env/
 *.venv/
-__pycache__/
+_pycache_/
 *.pyc
 
 # --------------------------
@@ -65,13 +65,12 @@ htmlcov/
 *.env
 .env
 
-
-# Dentro de cualquier carpeta "migrations":
-# 1) Ignora la carpeta __pycache__
-**/migrations/__pycache__/
+# 1) Ignora la carpeta _pycache_
+**/migrations/_pycache_/
 
 # 2) Ignora TODO lo demás en migrations...
-**/migrations/*
+*/migrations/
 
-# 3) ...pero conserva el __init__.py
-!**/migrations/__init__.py
+# 3) ...pero conserva el _init_.py
+!**/migrations/_init_.py
+

@@ -11,7 +11,12 @@ class AreaComunSerializer(serializers.ModelSerializer):
     class Meta:
         model = AreaComun
         fields = '_all_'
-        
+
+class RegistroVisita(serializers.ModelSerializer):
+    class Meta:
+        model = RegistroVisitaModel
+        fields = '_all_'
+
 class ReservaSerializer(serializers.ModelSerializer):
     # usuario = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())  # para asignar usuario al crear
     area_comun = serializers.PrimaryKeyRelatedField(queryset=AreaComun.objects.all()) # para asignar area al crear
