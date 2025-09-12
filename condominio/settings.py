@@ -133,3 +133,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#pip freeze > requirements.txt PARA GENERAR LISTA DE REQUIRIMIENTOS
+#pip install -r requirements.txt PARA INSTALAR LOS REQUIRIMIENTOS

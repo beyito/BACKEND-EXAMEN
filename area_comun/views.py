@@ -5,6 +5,12 @@ from datetime import datetime
 from .models import AreaComun, Reserva
 from .serializers import MarcarEntradaSerializer, MarcarSalidaSerializer
 
+# #Crear Lista Invitados
+
+
+# @api_view(['POST'])
+# def crearListaInvitados(request):
+
 # Create your views here.
 @api_view(['GET'])
 def mostrarCalendarioAreasComunes(request):
