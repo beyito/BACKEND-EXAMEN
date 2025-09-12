@@ -20,7 +20,9 @@ from django.urls import include
 from rest_framework import routers
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('guardia/', include('guardia.urls')),
-    path('users/', include('users.urls')),
-    path('area_comun/', include('area_comun.urls')),
+    path('usuario/', include('users.urls')),
+    path('areacomun/', include('area_comun.urls')),
+    path('comunicacion/', include('comunicacion.urls')),
+    path('gestionexpensas/', include('gestion_expensas.urls')),
+    path('unidadpertenencia/', include('unidad_pertenencia.urls')),
 ]

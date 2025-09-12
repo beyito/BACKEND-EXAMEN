@@ -1,8 +1,12 @@
 # users/serializers.py
-from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+
+from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from .models import GuardiaModel
+
 
 User = get_user_model()
 
@@ -58,3 +62,8 @@ class SetNewPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=6, write_only=True)
     token = serializers.CharField(write_only=True)
     uidb64 = serializers.CharField(write_only=True)
+
+class GuardiaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GuardiaModel
+        fields = '__all__'
