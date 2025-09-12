@@ -1,7 +1,11 @@
 from django.db import models
-from users.models import Usuario as User
 from django.utils import timezone
+from users.models import CopropietarioModel, PersonaModel, GuardiaModel
+from users.models import Usuario as User
 
+
+
+# LO QUE TENIA PARA CALENDARIO DE AREAS COMUNES
 
 class AreaComun(models.Model):
     id_area = models.AutoField(primary_key=True)
@@ -23,14 +27,13 @@ class AreaComun(models.Model):
 
     class Meta:
         db_table = 'area_comun'
-
-    def __str__(self):
+    def _str_(self):
         return self.nombre_area
 
 
 class Reserva(models.Model):
     id_reserva = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reservas")
+    usuario = models.ForeignKey(CopropietarioModel, on_delete=models.CASCADE, related_name="reservas")
     area_comun = models.ForeignKey(AreaComun, on_delete=models.CASCADE, related_name="reservas")
     
     fecha = models.DateField(null=True, blank=True)
@@ -51,6 +54,37 @@ class Reserva(models.Model):
 
     class Meta:
         db_table = 'reserva'
+    def _str_(self):
+        return f"{self.area_comun.nombre_area} - {self.usuario.username} ({self.inicio.date()})"
+
+
+
+
+class AutorizacionVisita(models.Model):
+    visitante = models.ForeignKey(PersonaModel, on_delete=models.CASCADE)
+    copropietario = models.ForeignKey(CopropietarioModel, on_delete=models.CASCADE)
+    hora_inicio = models.DateTimeField()
+    hora_fin = models.DateTimeField()
+    estado = models.CharField(max_length=20, default="Pendiente")
 
     def __str__(self):
-        return f"{self.area_comun.nombre_area} - {self.usuario.username} ({self.inicio.date()})"
+        return f"{self.visitante} autorizado por {self.copropietario} de {self.hora_inicio} a {self.hora_fin}"
+
+    class Meta:
+        db_table = 'autorizacion_visita'
+
+
+
+# LO QUE TENIA EN GUARDIA
+
+class RegistroVisitaModel(models.Model):
+    autorizacion = models.ForeignKey(AutorizacionVisita, on_delete=models.CASCADE)
+    guardia = models.ForeignKey(GuardiaModel, on_delete=models.CASCADE)
+    fecha_entrada = models.DateTimeField(auto_now_add=True, null=True)
+    fecha_salida = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Visita de {self.autorizacion.visitante} a {self.autorizacion.copropietario} registrada por {self.guardia}"
+
+    class Meta:
+        db_table = 'registro_visita'

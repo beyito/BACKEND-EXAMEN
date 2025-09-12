@@ -38,10 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'guardia',
-    'area_comun',
     'users',
+    'area_comun',
+    'comunicacion',
+    'gestion_expensas',
+    'unidad_pertenencia',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -79,9 +83,9 @@ WSGI_APPLICATION = 'condominio.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'condominio',
+        'NAME': 'condominio_v3',
         'USER': 'postgres',
-        'PASSWORD': 'CObuchan8',
+        'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '5432',
 
@@ -129,3 +133,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#pip freeze > requirements.txt PARA GENERAR LISTA DE REQUIRIMIENTOS
+#pip install -r requirements.txt PARA INSTALAR LOS REQUIRIMIENTOS
