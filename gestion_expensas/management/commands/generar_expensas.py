@@ -3,8 +3,7 @@ from datetime import date
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-# 👇 Usa el nombre REAL de tu app de unidades
-from unidad_pertenencia.models import Unidad  # o unidad_pertenencia.models
+from unidad_pertenencia.models import Unidad  
 from gestion_expensas.models import Expensa, Tarifa
 
 class Command(BaseCommand):
