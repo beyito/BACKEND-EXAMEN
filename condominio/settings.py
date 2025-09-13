@@ -83,17 +83,10 @@ WSGI_APPLICATION = 'condominio.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-<<<<<<< HEAD
-        'NAME': 'condominio_db',
-        'USER': 'postgres',
-        'PASSWORD': 'kihomy123',
-        'HOST': '127.0.0.1',
-=======
         'NAME': 'condominio_grupal',
         'USER': 'postgres',
         'PASSWORD': 'CObuchan8',
         'HOST': 'localhost',
->>>>>>> refs/remotes/origin/main
         'PORT': '5432',
 
     }
@@ -155,7 +148,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 #pip freeze > requirements.txt PARA GENERAR LISTA DE REQUIRIMIENTOS
-<<<<<<< HEAD
 #pip install -r requirements.txt PARA INSTALAR LOS REQUIRIMIENTOS
 
 REST_FRAMEWORK = {
@@ -167,6 +159,4 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ),
 }
-=======
 #pip install -r requirements.txt PARA INSTALAR LOS REQUIRIMIENTOS
->>>>>>> refs/remotes/origin/main
