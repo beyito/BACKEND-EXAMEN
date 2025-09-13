@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'users',
     'area_comun',
     'comunicacion',
-    'gestion_expensas',
+    'gestion_expensas.apps.GestionExpensasConfig',
     'unidad_pertenencia',
 ]
 
@@ -83,10 +83,10 @@ WSGI_APPLICATION = 'condominio.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'condominio_v3',
+        'NAME': 'condominio_db',
         'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': 'localhost',
+        'PASSWORD': 'kihomy123',
+        'HOST': '127.0.0.1',
         'PORT': '5432',
 
     }
@@ -115,13 +115,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
+LANGUAGE_CODE = 'es'
+TIME_ZONE = 'America/La_Paz'
 USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -133,3 +130,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
