@@ -120,3 +120,35 @@ class PersonaModel(models.Model):
 
     class Meta:
         db_table = 'persona'
+
+class ResidenteModel(models.Model):
+    TIPOS=[
+        ('copropietario','Copropietario'),
+        ('inquilino','Inquilino'),
+        ('familiar','Familiar'),
+        ('otro','Otro'),
+    ]
+    # fk de persona
+    idPersona = models.ForeignKey(PersonaModel, on_delete=models.CASCADE, related_name='residencias')
+    #  fk de copropietario
+    idCopropietario = models.ForeignKey(CopropietarioModel, on_delete=models.CASCADE, related_name='residentes')
+    tipo = models.CharField(max_length=20, choices=TIPOS, default='copropietario')
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    email_contacto = models.EmailField(blank=True, null=True)
+    class Meta:
+        db_table = 'residente'
+        constraints = [
+            # Impide dos residencias vigentes para el mismo par (copropietario, persona)
+            models.UniqueConstraint(
+                fields=['idCopropietario', 'idPersona'],
+                condition=models.Q(fecha_fin__isnull=True),
+                name='uniq_residencia_vigente_por_par',
+            ),
+            models.CheckConstraint(
+            check=(models.Q(fecha_fin__isnull=True) | models.Q(fecha_fin__gte=models.F('fecha_inicio'))),
+            name='chk_residencia_fechas_validas',
+        ),
+        ]
