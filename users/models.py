@@ -3,6 +3,30 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+# Esto tenias tu sebas
+# class Rol(models.Model):
+#     name = models.CharField(max_length=20, unique=True)
+
+#     def __str__(self):
+#         return self.name
+    
+# class Usuario(AbstractUser):
+#     email = models.EmailField(unique=True)
+#     ci = models.CharField(max_length=20, unique=True)
+#     phone_number = models.CharField(max_length=20, blank=True)
+#     ESTADO_CHOICES = (
+#         ('activo', 'Activo'),
+#         ('inactivo', 'Inactivo'),
+#     )
+#     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='activo')
+#     rol = models.ForeignKey(Rol, on_delete=models.CASCADE, default=2)
+
+#     # first_name y last_name ya existen en AbstractUser
+
+#     def __str__(self):
+#         return self.username
+    
+
 class Rol(models.Model):
     idRol = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, unique=True)
@@ -91,3 +115,35 @@ class PersonaModel(models.Model):
 
     class Meta:
         db_table = 'persona'
+
+class ResidenteModel(models.Model):
+    TIPOS=[
+        ('copropietario','Copropietario'),
+        ('inquilino','Inquilino'),
+        ('familiar','Familiar'),
+        ('otro','Otro'),
+    ]
+    # fk de persona
+    idPersona = models.ForeignKey(PersonaModel, on_delete=models.CASCADE, related_name='residencias')
+    #  fk de copropietario
+    idCopropietario = models.ForeignKey(CopropietarioModel, on_delete=models.CASCADE, related_name='residentes')
+    tipo = models.CharField(max_length=20, choices=TIPOS, default='copropietario')
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    email_contacto = models.EmailField(blank=True, null=True)
+    class Meta:
+        db_table = 'residente'
+        constraints = [
+            # Impide dos residencias vigentes para el mismo par (copropietario, persona)
+            models.UniqueConstraint(
+                fields=['idCopropietario', 'idPersona'],
+                condition=models.Q(fecha_fin__isnull=True),
+                name='uniq_residencia_vigente_por_par',
+            ),
+            models.CheckConstraint(
+            check=(models.Q(fecha_fin__isnull=True) | models.Q(fecha_fin__gte=models.F('fecha_inicio'))),
+            name='chk_residencia_fechas_validas',
+        ),
+        ]

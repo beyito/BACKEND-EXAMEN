@@ -85,8 +85,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'condominio_db',
         'USER': 'postgres',
+<<<<<<< HEAD
         'PASSWORD': 'kihomy123',
         'HOST': '127.0.0.1',
+=======
+        'PASSWORD': 'h0l4c0m03st4s',
+        'HOST': 'localhost',
+>>>>>>> refs/remotes/origin/main
         'PORT': '5432',
 
     }
@@ -115,8 +120,17 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
+<<<<<<< HEAD
 LANGUAGE_CODE = 'es'
 TIME_ZONE = 'America/La_Paz'
+=======
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'America/La_Paz'
+
+USE_I18N = True
+
+>>>>>>> refs/remotes/origin/main
 USE_TZ = True
 
 
@@ -131,5 +145,16 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+<<<<<<< HEAD
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+=======
+#pip freeze > requirements.txt PARA GENERAR LISTA DE REQUIRIMIENTOS
+#pip install -r requirements.txt PARA INSTALAR LOS REQUIRIMIENTOS
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+>>>>>>> refs/remotes/origin/main

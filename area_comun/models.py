@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from users.models import CopropietarioModel, PersonaModel, GuardiaModel
-
+from users.models import Usuario as User
 
 
 
