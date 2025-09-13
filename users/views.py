@@ -1,39 +1,31 @@
 
 from django.contrib.auth import authenticate,get_user_model
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny, BasePermission
-from rest_framework.decorators import api_view, permission_classes, action 
+from rest_framework.decorators import  action 
 from rest_framework.response import Response
 from .serializers import UserSerializer, MyTokenObtainPairSerializer,UsuarioCreateSerializer, UsuarioSerializer,CopropietarioSerializer,CopropietarioLinkCreateSerializer,CopropietarioCreateSerializer
 from django.db import transaction 
 from .models import Usuario, CopropietarioModel
-from rest_framework import generics, viewsets, status
-
+from rest_framework import generics, viewsets, status, mixins
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
-
-# Create your views here.
-# Permiso opcional por rol
+# ---------- Permiso por rol ----------
 class IsAdministrador(BasePermission):
     def has_permission(self, request, view):
         u = getattr(request, 'user', None)
-        return bool(u and u.is_authenticated and getattr(u, 'idRol', None) and u.idRol.name == "Administrador")
+        return bool(
+            u and u.is_authenticated and getattr(u, 'idRol', None) and u.idRol.name == "Administrador"
+        )
+# Create your views here.
 
 class UsuarioCreateOnlyViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Usuario.objects.none()
-    permission_classes = [IsAuthenticated, IsAdministrador]
-
-    def get_permission(self):
-
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            return [IsAuthenticated(),IsAdministrador]
-        if self.action in ['registrar_copropietario', 'vincular_copropietario']:
-            return [IsAuthenticated(),IsAdministrador]
-        return [IsAuthenticated()]
-    
-
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdministrador]    
     def get_serializer_class(self):
         if self.action == 'create':
             return UsuarioCreateSerializer
@@ -46,7 +38,7 @@ class UsuarioCreateOnlyViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet)
                 "Status": 2,
                 "Error": 1,
                 "message": "Datos inválidos",
-                "data": {"errors": ser.errors},
+                "values": {"errors": ser.errors},
                 "result": None
             })
         user = ser.save()
@@ -55,7 +47,7 @@ class UsuarioCreateOnlyViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet)
             "Status": 1,
             "Error": 0,
             "message": f"Usuario registrado id={user.id}",
-            "data": {"id": user.id},
+            "values": {"id": user.id},
             "result": out
         })
     # Registrar Copropietario (Crea Usuario + Copropietario)
@@ -77,8 +69,7 @@ class UsuarioCreateOnlyViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet)
             "Status": 1,
             "Error": 0,
             "message": f"Copropietario registrado idUsuario={cop.idUsuario_id}",
-            "data": {"idUsuario": cop.idUsuario_id, "unidad": cop.unidad},
-            "result": out
+            "values": out
         })
 
     
@@ -97,7 +88,7 @@ class RegisterView(generics.CreateAPIView):
             "Status": 1,
             "Error": 0,
             "message": "Usuario registrado correctamente",
-            "data": serializer.data
+            "values": serializer.data
         }, status=status.HTTP_201_CREATED)
 
 
@@ -113,7 +104,7 @@ class UserViewSet(viewsets.ModelViewSet):
             "Status": 1,
             "Error": 0,
             "message": "Usuarios listados correctamente",
-            "data": serializer.data
+            "values": serializer.data
         })
 
 
@@ -129,20 +120,21 @@ class MyTokenObtainPairView(TokenObtainPairView):
                 "Status": 2,
                 "Error": 1,
                 "message": "Error al iniciar sesión",
-                "data": {}
+                "values": {}
             }, status=400)
         
         return Response({
             "Status": 1,
             "Error": 0,
             "message": "Se inició sesión correctamente",
-            "data": serializer.validated_data
+            "values": serializer.validated_data
         })
 
 
 class LogoutView(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-
+    
     def post(self, request):
         try:
             refresh_token = request.data["refresh"]

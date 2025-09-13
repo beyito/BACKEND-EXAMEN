@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'condominio_v3',
         'USER': 'postgres',
-        'PASSWORD': '',
+        'PASSWORD': 'h0l4c0m03st4s',
         'HOST': 'localhost',
         'PORT': '5432',
 
@@ -136,3 +136,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #pip freeze > requirements.txt PARA GENERAR LISTA DE REQUIRIMIENTOS
 #pip install -r requirements.txt PARA INSTALAR LOS REQUIRIMIENTOS
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
