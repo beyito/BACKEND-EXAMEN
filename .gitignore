@@ -5,6 +5,7 @@ venv/
 myenv/
 env/
 *.venv/
+__pycache__/
 _pycache_/
 *.pyc
 
@@ -65,6 +66,11 @@ htmlcov/
 *.env
 .env
 
+# --------------------------
+# Django migrations (opcional)
+# --------------------------
+*/migrations/
+!*/migrations/__init__.py
 # 1) Ignora la carpeta _pycache_
 **/migrations/_pycache_/
 

@@ -39,7 +39,8 @@ class Reserva(models.Model):
     fecha = models.DateField(null=True, blank=True)
     hora_inicio = models.TimeField(null=True, blank=True)
     hora_fin = models.TimeField(null=True, blank=True)
-    
+    url_comprobante = models.URLField(null=True, blank=True)
+
     ESTADO_CHOICES = (
         ('pendiente', 'Pendiente'),
         ('confirmada', 'Confirmada'),
@@ -54,8 +55,8 @@ class Reserva(models.Model):
 
     class Meta:
         db_table = 'reserva'
-    def _str_(self):
-        return f"{self.area_comun.nombre_area} - {self.usuario.username} ({self.inicio.date()})"
+    def __str__(self):
+        return f"{self.area_comun.nombre_area} - {self.usuario.usuario.username} ({self.fecha})"
 
 
 
@@ -65,7 +66,13 @@ class AutorizacionVisita(models.Model):
     copropietario = models.ForeignKey(CopropietarioModel, on_delete=models.CASCADE)
     hora_inicio = models.DateTimeField()
     hora_fin = models.DateTimeField()
+    ESTADO_CHOICES = (
+        ('pendiente', 'Pendiente'),
+        ('en visita', 'En Visita'),
+        ('completada', 'Completada'),
+    )
     estado = models.CharField(max_length=20, default="Pendiente")
+    motivo_visita = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"{self.visitante} autorizado por {self.copropietario} de {self.hora_inicio} a {self.hora_fin}"

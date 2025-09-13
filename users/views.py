@@ -1,79 +1,65 @@
 
-from django.contrib.auth import authenticate,get_user_model
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny, BasePermission
-from rest_framework.decorators import  action 
-from rest_framework.response import Response
-from .serializers import UserSerializer, MyTokenObtainPairSerializer,UsuarioCreateSerializer, UsuarioSerializer,CopropietarioSerializer,CopropietarioLinkCreateSerializer,CopropietarioCreateSerializer
-from django.db import transaction 
-from .models import Usuario, CopropietarioModel
-from rest_framework import generics, viewsets, status, mixins
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import generics, viewsets, status
+from django.contrib.auth import get_user_model
+from .serializers import UserSerializer, MyTokenObtainPairSerializer, CopropietarioSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+from rest_framework.exceptions import AuthenticationFailed
+from .models import Usuario
+from rest_framework.decorators import api_view
 User = get_user_model()
-# ---------- Permiso por rol ----------
-class IsAdministrador(BasePermission):
-    def has_permission(self, request, view):
-        u = getattr(request, 'user', None)
-        return bool(
-            u and u.is_authenticated and getattr(u, 'idRol', None) and u.idRol.name == "Administrador"
-        )
-# Create your views here.
 
-class UsuarioCreateOnlyViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    queryset = Usuario.objects.none()
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated, IsAdministrador]    
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return UsuarioCreateSerializer
-        
-    # Registrar Usuario
+class RegisterCopropietarioView(generics.CreateAPIView):
+    serializer_class = CopropietarioSerializer
+    permission_classes = [AllowAny]
+
     def create(self, request, *args, **kwargs):
-        ser = UsuarioCreateSerializer(data=request.data)
-        if not ser.is_valid():
+        data = request.data.copy()
+        data['idRol'] = 2  # forzar el rol de copropietario
+        print(data)
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            serializer.save()  # llama automáticamente al create del serializer
             return Response({
-                "Status": 2,
-                "Error": 1,
-                "message": "Datos inválidos",
-                "values": {"errors": ser.errors},
-                "result": None
+                "status": 1,
+                "error": 0,
+                "message": "Usuario registrado correctamente",
+                "values": serializer.data
             })
-        user = ser.save()
-        out = UsuarioSerializer(user).data
         return Response({
-            "Status": 1,
-            "Error": 0,
-            "message": f"Usuario registrado id={user.id}",
-            "values": {"id": user.id},
-            "result": out
-        })
-    # Registrar Copropietario (Crea Usuario + Copropietario)
-    @action(detail=False, methods=['post'], url_path='registrar-copropietario')
-    @transaction.atomic
-    def registrar_copropietario(self, request):
-        ser = CopropietarioCreateSerializer(data=request.data)
-        if not ser.is_valid():
-            return Response({
-                "Status": 2,
-                "Error": 1,
-                "message": "Datos inválidos",
-                "data": {"errors": ser.errors},
-                "result": None
-            })
-        cop = ser.save()
-        out = CopropietarioSerializer(cop).data
-        return Response({
-            "Status": 1,
-            "Error": 0,
-            "message": f"Copropietario registrado idUsuario={cop.idUsuario_id}",
-            "values": out
+            "status": 2,
+            "error": 1,
+            "message": "Usuario no se pudo registrar correctamente",
+            "errors": serializer.errors
         })
 
-    
-    
+class RegisterGuardiaView(generics.CreateAPIView):
+    serializer_class = CopropietarioSerializer
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        data['idRol'] = 3  # forzar el rol de guardia
+        print(data)
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            serializer.save()  # llama automáticamente al create del serializer
+            return Response({
+                "status": 1,
+                "error": 0,
+                "message": "Usuario registrado correctamente",
+                "values": serializer.data
+            })
+        return Response({
+            "status": 2,
+            "error": 1,
+            "message": "Usuario no se pudo registrar correctamente",
+            "errors": serializer.errors
+        })
 
 
 class RegisterView(generics.CreateAPIView):
@@ -81,16 +67,16 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
+        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response({
-            "Status": 1,
-            "Error": 0,
+            "status": 1,
+            "error": 0,
             "message": "Usuario registrado correctamente",
             "values": serializer.data
         }, status=status.HTTP_201_CREATED)
-
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -101,8 +87,8 @@ class UserViewSet(viewsets.ModelViewSet):
         users = self.get_queryset()
         serializer = self.get_serializer(users, many=True)
         return Response({
-            "Status": 1,
-            "Error": 0,
+            "status": 1,
+            "error": 0,
             "message": "Usuarios listados correctamente",
             "values": serializer.data
         })
@@ -113,41 +99,91 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        print("Request data", request.data)
         try:
             serializer.is_valid(raise_exception=True)
-        except Exception:
+        except AuthenticationFailed as e:
+            # Aquí puedes personalizar según el mensaje
+            error_msg = str(e)
+            if "No active account" in error_msg:
+                return Response({
+                    "status": 2,
+                    "error": 1,
+                    "message": "Usuario o contraseña incorrectos"
+                })
+            
             return Response({
-                "Status": 2,
-                "Error": 1,
-                "message": "Error al iniciar sesión",
-                "values": {}
-            }, status=400)
-        
+                "status": 2,
+                "error": 1,
+                "message": error_msg
+            })
+
+        # Si pasó la validación
         return Response({
-            "Status": 1,
-            "Error": 0,
+            "status": 1,
+            "error": 0,
             "message": "Se inició sesión correctamente",
             "values": serializer.validated_data
         })
 
 
 class LogoutView(APIView):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    
+
     def post(self, request):
         try:
-            refresh_token = request.data["refresh"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()
+            # Tomamos el access token del header Authorization
+            auth_header = request.headers.get('Authorization')
+            if not auth_header:
+                return Response({
+                    "Status": 2,
+                    "Error": 1,
+                    "message": "No se proporcionó token de acceso"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            token_str = auth_header.split(" ")[1]  # "Bearer <token>"
+            token = AccessToken(token_str)
+
+            # Si tu configuración tiene blacklist habilitado, podemos invalidarlo
+            if hasattr(token, 'blacklist'):
+                token.blacklist()
+
             return Response({
                 "Status": 1,
                 "Error": 0,
-                "message": "Se cerro la sesión correctamente",}, status=status.HTTP_205_RESET_CONTENT)
-        except Exception:
+                "message": "Se cerró la sesión correctamente",
+            }, status=status.HTTP_205_RESET_CONTENT)
+
+        except Exception as e:
             return Response({
                 "Status": 2,
                 "Error": 1,
-                "message": "Error al cerrar la sesión",
-            },status=status.HTTP_400_BAD_REQUEST)
+                "message": f"Error al cerrar la sesión: {str(e)}",
+            }, status=status.HTTP_400_BAD_REQUEST)
+# VER PERFIL
+
+class PerfilUsuarioView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        
+        usuario = request.user  # ya es el usuario autenticado
+        print(usuario.idRol)
+        return Response({
+            "status": 1,
+            "error": 0,
+            "message": "Perfil obtenido correctamente",
+            "values": {
+                    "id": usuario.id,
+                    "username": usuario.username,
+                    "nombre": usuario.nombre,
+                    "ci": usuario.ci,
+                    "email": usuario.email,
+                    "telefono": usuario.telefono,
+                    "rol": usuario.idRol.name,
+            }
+        })
+
+
+
         
