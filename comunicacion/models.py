@@ -6,14 +6,14 @@ from users.models import Usuario
 class Comunicado(models.Model):
     titulo = models.CharField(max_length=255)
     descripcion = models.TextField()
-    url_imagen = models.URLField(null=True, blank=True)
-    fecha_publicacion = models.DateTimeField(auto_now_add=True)
-    fecha_vencimiento = models.DateTimeField(null=True, blank=True)
+    imagen_url = models.URLField(null=True, blank=True)
+    fecha_publicacion = models.DateField(auto_now_add=True)
+    fecha_vencimiento = models.DateField(null=True, blank=True)
     tipo = models.CharField(max_length=50)  # ANUNCIO,COMUNICADO,ADVERTENCIA,ETC
     administrador =  models.ForeignKey(
     Usuario, 
     on_delete=models.CASCADE, 
-    db_column='administrador_id'
+    db_column='administrador_id',
     )# ID del administrador que crea el comunicado
     activo = models.BooleanField(default=True)
 

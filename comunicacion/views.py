@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Comunicado
-from .serializers import ComunicadoSerializer
+from .serializers import ListarComunicadoSerializer, ComunicadoSerializer
 from users.models import Usuario
 
 
@@ -12,6 +12,7 @@ from users.models import Usuario
 def crearComunicado(request, administrador_id):
     try:
         admin = Usuario.objects.get(id=administrador_id)
+        print(admin)
     except Usuario.DoesNotExist:
         return Response({"status": 2, "error": 1, "message": "Usuario no encontrado"})
 
@@ -24,6 +25,7 @@ def crearComunicado(request, administrador_id):
             }
         )
     data = request.data.copy()
+    data["administrador"] = administrador_id
     # Pasa el ID, no el objeto
     print(data)
 
@@ -35,7 +37,7 @@ def crearComunicado(request, administrador_id):
                 "status": 1,
                 "error": 0,
                 "message": "Comunicado creado correctamente",
-                # "data": ComunicadoSerializer(comunicado).data
+                "values": ComunicadoSerializer(comunicado).data,
             }
         )
 
@@ -52,13 +54,14 @@ def crearComunicado(request, administrador_id):
 @api_view(["GET"])
 def ListarComunicado(request):
     objetos = Comunicado.objects.filter(activo=True)
-    serializer = ComunicadoSerializer(objetos, many=True)
+    serializer = ListarComunicadoSerializer(objetos, many=True)
+    
     return Response(
         {
             "status": 1,
             "errorr": 0,
             "message": "Se crea la lista de comunicados correctamente",
-            "value": serializer.data,
+            "values": serializer.data,
         }
     )
 

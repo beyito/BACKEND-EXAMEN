@@ -14,6 +14,8 @@ urlpatterns = [
     path('marcarSalida', views.marcarSalidaVisita, name='marcarSalida'),
     path('mostrarCalendarioAreasComunes', views.mostrarCalendarioAreasComunes, name='mostrarCalendarioAreasComunes'),
     # path('crearListaInvitados<int:copropietario_id>', views.crearListaInvitados, name='crearListaInvitados'),
+    #LISTAR VISITAS PARA EL GUARDIA
+    path('mostrarVisitas', views.mostrarVisitas, name='mostrarVisitas'),
 ]
 
 # 3. Agregar las del router a urlpatterns
